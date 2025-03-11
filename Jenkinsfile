@@ -52,28 +52,5 @@ pipeline {
                 }
             }
         }
-        
-        stage('CleanUp Images') {
-            steps {
-                sh """
-                docker rmi ${REGISTRY}/${IMAGE_NAME}:v$BUILD_NUMBER
-                """
-            }
-        }
-        
-        stage('Deploy to AKS') {
-            steps {
-                script {
-                    sh "az aks get-credentials --resource-group ${RESOURCE_GROUP} --name ${AKS_CLUSTER}"
-                    sh """
-                    sed 's/latest/v${env.BUILD_ID}/g' kubernetes/deploy.yaml > output.yaml
-                    cat output.yaml
-                    kubectl apply -f output.yaml
-                    kubectl apply -f kubernetes/service.yaml
-                    rm output.yaml
-                    """
-                }
-            }
-        }
     }
 }
